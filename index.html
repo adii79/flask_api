@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Channel Data Viewer</title>
+</head>
+<body>
+    <h1>Channel Data Viewer</h1>
+    <label for="channel-select">Select Channel:</label>
+    <select id="channel-select">
+        <option value="channel1">Channel 1</option>
+        <option value="channel2">Channel 2</option>
+    </select>
+    <button onclick="fetchData()">Fetch Data</button>
+    <div id="output"></div>
+
+    <script>
+        const READ_API_KEY = "read-api-key"; // Replace with your actual read API key
+        const BASE_URL = "http://127.0.0.1:5000"; // Main Flask server URL
+
+        function fetchData() {
+            const channel = document.getElementById("channel-select").value;
+            const url = `${BASE_URL}/read/${channel}?key=${READ_API_KEY}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Error: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const outputDiv = document.getElementById("output");
+                    outputDiv.innerHTML = ""; // Clear previous content
+
+                    if (data.length === 0) {
+                        outputDiv.textContent = "No data available.";
+                    } else {
+                        data.forEach(entry => {
+                            const entryText = `${entry.timestamp} - ${entry.sensor_name}: ${entry.sensor_value}`;
+                            const p = document.createElement("p");
+                            p.textContent = entryText;
+                            outputDiv.appendChild(p);
+                        });
+                    }
+                })
+                .catch(error => {
+                    alert(`Failed to fetch data: ${error.message}`);
+                });
+        }
+    </script>
+</body>
+</html>
